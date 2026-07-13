@@ -57,20 +57,25 @@ docker run -p 8000:8000 ffribeiro/python-webapp-ci-template:local
 
 ## Releasing a new version
 
-1. Make the code change and commit it (open a PR against `main` if you want
-   tests to gate it before merge).
-2. Bump the version in [`VERSION`](VERSION) (e.g. `1.0` → `1.1`) — this is
-   what produces a new image tag. Without it, `build-and-push` just
-   re-pushes the same tag and `update-gitops` becomes a no-op commit.
-3. Merge to `main`. CI runs `test` → `build-and-push` → `update-gitops` (see
-   [CI/CD](#cicd) above), pushing the new image and bumping the dev tag in
-   the GitOps repo.
-4. ArgoCD picks up the change and syncs `myapp-dev` automatically — no
+1. When an app update is required, create a branch off `main` named
+   `release/<newtag>` (e.g. `release/1.1`) — the branch name should match
+   the version you're about to ship.
+2. Make the code change on that branch and commit it.
+3. Bump the version in [`VERSION`](VERSION) to match the branch (e.g.
+   `1.0` → `1.1`) — this is what produces a new image tag. Without it,
+   `build-and-push` just re-pushes the same tag and `update-gitops`
+   becomes a no-op commit.
+4. Open a PR from `release/<newtag>` against `main` so tests gate it
+   before merge.
+5. Merge to `main`. CI runs `test` → `build-and-push` → `update-gitops`
+   (see [CI/CD](#cicd) above), pushing the new image and bumping the dev
+   tag in the GitOps repo.
+6. ArgoCD picks up the change and syncs `myapp-dev` automatically — no
    manual `kubectl apply` needed.
-5. Verify the rollout in dev (`kubectl get pods -n myapp-dev`, confirm the
+7. Verify the rollout in dev (`kubectl get pods -n myapp-dev`, confirm the
    image tag, hit the app, or check ArgoCD's sync status) before trusting
    the release.
-6. Promote to prod as a separate, deliberate step: open a PR in the
+8. Promote to prod as a separate, deliberate step: open a PR in the
    [GitOps repo](https://github.com/rftecpro-ai/python-webapp-ci-template-gitops)
    bumping `overlays/prod/kustomization.yaml`'s tag to the verified version.
    See that repo's README for details.
