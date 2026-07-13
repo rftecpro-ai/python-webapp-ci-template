@@ -55,11 +55,25 @@ docker run -p 8000:8000 ffribeiro/python-webapp-ci-template:local
    dev environment automatically. Promoting to prod is a separate, deliberate
    step done in the GitOps repo (see its README).
 
-To cut a new release, bump the version in the [`VERSION`](VERSION) file and
-merge to `main` — that value becomes the image tag. Without a bump, every
-merge to `main` re-pushes the same version tag (pointing at the latest
-commit) and the `update-gitops` step becomes a no-op commit, so treat
-updating `VERSION` as the release step.
+## Releasing a new version
+
+1. Make the code change and commit it (open a PR against `main` if you want
+   tests to gate it before merge).
+2. Bump the version in [`VERSION`](VERSION) (e.g. `1.0` → `1.1`) — this is
+   what produces a new image tag. Without it, `build-and-push` just
+   re-pushes the same tag and `update-gitops` becomes a no-op commit.
+3. Merge to `main`. CI runs `test` → `build-and-push` → `update-gitops` (see
+   [CI/CD](#cicd) above), pushing the new image and bumping the dev tag in
+   the GitOps repo.
+4. ArgoCD picks up the change and syncs `myapp-dev` automatically — no
+   manual `kubectl apply` needed.
+5. Verify the rollout in dev (`kubectl get pods -n myapp-dev`, confirm the
+   image tag, hit the app, or check ArgoCD's sync status) before trusting
+   the release.
+6. Promote to prod as a separate, deliberate step: open a PR in the
+   [GitOps repo](https://github.com/rftecpro-ai/python-webapp-ci-template-gitops)
+   bumping `overlays/prod/kustomization.yaml`'s tag to the verified version.
+   See that repo's README for details.
 
 ### Required repository secrets
 
