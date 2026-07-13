@@ -87,7 +87,7 @@ These jobs need secrets set in the GitHub repo
 
 | Secret | Used by | Value |
 |---|---|---|
-| `DOCKERHUB_USERNAME` | build-and-push | Your Docker Hub username (`ffribeiro`) |
+| `DOCKERHUB_USERNAME` | build-and-push | Your Docker Hub username |
 | `DOCKERHUB_TOKEN` | build-and-push | A Docker Hub [access token](https://hub.docker.com/settings/security) (not your password) |
 | `GITOPS_PAT` | update-gitops | A GitHub PAT with `repo` write access to `rftecpro-ai/python-webapp-ci-template-gitops` (the default `GITHUB_TOKEN` can't write to a different repo) |
 
