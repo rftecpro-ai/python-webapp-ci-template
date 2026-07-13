@@ -91,5 +91,29 @@ These jobs need secrets set in the GitHub repo
 | `DOCKERHUB_TOKEN` | build-and-push | A Docker Hub [access token](https://hub.docker.com/settings/security) (not your password) |
 | `GITOPS_PAT` | update-gitops | A GitHub PAT with `repo` write access to `rftecpro-ai/python-webapp-ci-template-gitops` (the default `GITHUB_TOKEN` can't write to a different repo) |
 
-I can't create these secrets for you — add them manually before merging to
-`main`, otherwise the corresponding job will fail.
+#### Creating and adding `GITOPS_PAT`
+
+Two parts: create the PAT, then add it as a secret.
+
+**1. Create the PAT** (use an account with write access to the GitOps repo):
+
+- Go to GitHub → **Settings → Developer settings → Personal access tokens**.
+- **Fine-grained token (recommended):** scope it to `rftecpro-ai/python-webapp-ci-template-gitops` only, with **Contents: Read and write** permission (add **Pull requests: Read and write** too if the workflow opens PRs). If the org has fine-grained PAT approval enabled, an org admin will need to approve it.
+- **Classic token (simpler if the org restricts fine-grained tokens):** scope `repo` (full control of private repos, or just `public_repo` if it's public).
+- Set an expiration and copy the token value once — it won't be shown again.
+
+**2. Add it as a repo secret:**
+
+- Go to `rftecpro-ai/python-webapp-ci-template` → **Settings → Secrets and variables → Actions → Repository secrets**.
+- Click **New repository secret**.
+- Name: `GITOPS_PAT`
+- Value: paste the token.
+- Save.
+
+The workflow then references it as `${{ secrets.GITOPS_PAT }}` when checking out and pushing to the GitOps repo.
+
+> **Note:** a PAT tied to a personal account means the token dies if that person leaves or rotates credentials, and audit logs show the action as that person rather than the automation. If this pattern recurs across repos, consider a GitHub App or bot/service account instead — cleaner for OSFI-aligned access management and offboarding.
+
+These secrets require access we don't have (your Docker Hub credentials, your
+GitHub account) — someone with the right permissions needs to create them
+manually before merging to `main`, or the corresponding job will fail.
