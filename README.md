@@ -3,6 +3,21 @@
 A minimal Flask "Hello World" web app, containerized with Docker and built/pushed
 to Docker Hub via a GitHub Actions CI pipeline.
 
+## Folder structure
+
+```
+.
+├── .github/workflows/ci.yml   # CI pipeline: test, then build & push to Docker Hub
+├── app.py                     # Flask app entrypoint
+├── conftest.py                # pytest fixtures/config
+├── Dockerfile                 # container build
+├── requirements.txt           # runtime dependencies
+├── requirements-dev.txt       # dev/test dependencies
+├── tests/
+│   └── test_app.py            # app tests
+└── VERSION                    # image tag for the current release
+```
+
 ## Local development
 
 ```bash
@@ -28,7 +43,9 @@ docker run -p 8000:8000 ffribeiro/python-webapp-template:local
 1. **test** — installs dependencies and runs `pytest`.
 2. **build-and-push** — on push to `main` only (after tests pass), builds a
    multi-arch (`linux/amd64`, `linux/arm64`) image and pushes it to Docker Hub
-   as `ffribeiro/python-webapp-template:<VERSION>` and `:<commit-sha>`.
+   as `ffribeiro/python-webapp-template:<VERSION>` and `:<commit-sha>`. This
+   step only publishes the image to Docker Hub, it does not deploy it
+   anywhere; deployment is a separate, manual step.
 
 To cut a new release, bump the version in the [`VERSION`](VERSION) file and
 merge to `main` — that value becomes the image tag. Without a bump, every
