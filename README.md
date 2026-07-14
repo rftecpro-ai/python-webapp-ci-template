@@ -50,7 +50,7 @@ docker run -p 8000:8000 ffribeiro/python-webapp-ci-template:local
    as `ffribeiro/python-webapp-ci-template:<VERSION>`.
 3. **update-gitops** — checks out
    [python-webapp-ci-template-gitops](https://github.com/rftecpro-ai/python-webapp-ci-template-gitops),
-   bumps the image tag in `overlays/dev/kustomization.yaml` to the new
+   bumps the image tag in `dev/deployment.yaml` to the new
    `<VERSION>`, and pushes the change. ArgoCD watches that repo and syncs the
    dev environment automatically. Promoting to prod is a separate, deliberate
    step done in the GitOps repo (see its README).
@@ -70,14 +70,14 @@ docker run -p 8000:8000 ffribeiro/python-webapp-ci-template:local
 5. Merge to `main`. CI runs `test` → `build-and-push` → `update-gitops`
    (see [CI/CD](#cicd) above), pushing the new image and bumping the dev
    tag in the GitOps repo.
-6. ArgoCD picks up the change and syncs `myapp-dev` automatically — no
+6. ArgoCD picks up the change and syncs `myapp` automatically — no
    manual `kubectl apply` needed.
-7. Verify the rollout in dev (`kubectl get pods -n myapp-dev`, confirm the
+7. Verify the rollout in dev (`kubectl get pods -n myapp`, confirm the
    image tag, hit the app, or check ArgoCD's sync status) before trusting
    the release.
 8. Promote to prod as a separate, deliberate step: open a PR in the
    [GitOps repo](https://github.com/rftecpro-ai/python-webapp-ci-template-gitops)
-   bumping `overlays/prod/kustomization.yaml`'s tag to the verified version.
+   bumping `prod/deployment.yaml`'s tag to the verified version.
    See that repo's README for details.
 
 ### Required repository secrets
